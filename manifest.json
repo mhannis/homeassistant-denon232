@@ -1,0 +1,10 @@
+{
+    "domain": "denon232",
+    "name": "Denon RS232",
+    "codeowners": [],
+    "dependencies": [],
+    "documentation": "https://github.com/scottbez1/HomeAssistant_Denon_RS232",
+    "iot_class": "local_polling",
+    "requirements": [],
+    "version": "0.1.0"
+}

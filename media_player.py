@@ -36,7 +36,7 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend({
     vol.Optional(CONF_NAME, default=DEFAULT_NAME): cv.string,
 })
 
-NORMAL_INPUTS = {'CD': 'CD', 'DVD': 'DVD', 'TV': 'TV/CBL','HDP': 'HDP', 'Video Aux': 'V.AUX'}
+NORMAL_INPUTS = {'CD': 'CD', 'DVD': 'DVD', 'TV': 'TV/CBL','HDP': 'HDP', 'Video Aux': 'V.AUX', 'SAT':'SAT'}
 
 # Sub-modes of 'NET/USB'
 # {'USB': 'USB', 'iPod Direct': 'IPD', 'Internet Radio': 'IRP',
@@ -124,11 +124,11 @@ class Denon(MediaPlayerEntity):
             if self._mediasource == name:
                 return pretty_name
 
-    def turn_on(self):
+    async def async_turn_on(self):
         """Turn the media player on."""
         self._denon232_receiver.serial_command('PWON')
         
-    def turn_off(self):
+    async def async_turn_off(self):
         """Turn off media player."""
         self._denon232_receiver.serial_command('PWSTANDBY')
 
