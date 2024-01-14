@@ -30,6 +30,10 @@ SUPPORT_DENON = MediaPlayerEntityFeature.VOLUME_SET | MediaPlayerEntityFeature.V
     MediaPlayerEntityFeature.TURN_OFF | MediaPlayerEntityFeature.SELECT_SOURCE | \
     MediaPlayerEntityFeature.SELECT_SOUND_MODE
 
+SUPPORT_DENON_ZONE = MediaPlayerEntityFeature.VOLUME_SET | MediaPlayerEntityFeature.VOLUME_STEP | \
+    MediaPlayerEntityFeature.TURN_ON | MediaPlayerEntityFeature.TURN_OFF | \
+    MediaPlayerEntityFeature.SELECT_SOURCE
+
 CONF_SERIAL_PORT = 'serial_port'
 
 PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend({
@@ -43,7 +47,7 @@ NORMAL_INPUTS = {'CD': 'CD', 'DVD': 'DVD', 'TV': 'TV', 'Video Aux': 'V.AUX', 'DB
 SOUND_MODES = {'Stereo': 'STEREO', 'Direct': 'DIRECT', 'Pure Direct': 'PURE DIRECT',
                'Dolby Digital': 'DOLBY DIGITAL', 'DTS Surround': 'DTS SURROUND', 'Rock Arena': 'ROCK ARENA',
                'Jazz Club': 'JAZZ CLUB', 'Mono Movie': 'MONO MOVIE', 'Matrix': 'MATRIX',
-               'Video Game': 'VIDEO GAME', 'Virtual': 'VIRTUAL'}
+               'Video Game': 'VIDEO GAME', 'Virtual': 'VIRTUAL', 'Multi-channel Stereo': '5CH STEREO'}
 
 # Sub-modes of 'NET/USB'
 # {'USB': 'USB', 'iPod Direct': 'IPD', 'Internet Radio': 'IRP',
@@ -52,12 +56,23 @@ SOUND_MODES = {'Stereo': 'STEREO', 'Direct': 'DIRECT', 'Pure Direct': 'PURE DIRE
 def setup_platform(hass, config, add_devices, discovery_info=None):
     """Set up the Denon232 platform."""
     from .denon232_receiver import Denon232Receiver
-    add_devices([Denon(
-        config.get(CONF_NAME),
-        Denon232Receiver(config.get(CONF_SERIAL_PORT))
-    )], True)
 
-class Denon(MediaPlayerEntity):
+    receiver = Denon232Receiver(config.get(CONF_SERIAL_PORT))
+    # Add receiver and configured zones
+    add_devices(
+        [Denon232Device(
+            config.get(CONF_NAME), receiver
+        ),
+        Denon232Zone(
+            f"{config.get(CONF_NAME)} Zone 2", receiver, 'Z2'
+        ),
+        Denon232Zone(
+            f"{config.get(CONF_NAME)} Zone 3", receiver, 'Z1'
+        )
+        ]
+    )
+
+class Denon232Device(MediaPlayerEntity):
     """Representation of a Denon device."""
         
     def __init__(self, name, denon232_receiver):
@@ -178,3 +193,81 @@ class Denon(MediaPlayerEntity):
     def select_sound_mode(self, sound_mode):
         """Select sound mode."""
         self._denon232_receiver.serial_command('MS' + self._sound_mode_list.get(sound_mode))
+
+class Denon232Zone(MediaPlayerEntity):
+    """Representation of a Denon Zone."""
+    def __init__(self, name, denon232_receiver, zone_identifier):
+        """Initialize the Denon Receiver Zone."""
+        self._name = name
+        self._zid = zone_identifier
+        self._pwstate = f'{self._zid}OFF'
+        self._volume = 0
+        # Initial value 60dB, changed if we get a MVMAX
+        self._volume_max = 60
+        self._source_list = NORMAL_INPUTS.copy()
+        self._mediasource = ''
+        self._denon232_receiver = denon232_receiver
+    
+    def update(self):
+        """Get the latest details from the zone."""
+        self._pwstate = self._denon232_receiver.serial_command(f'{self._zid}?', response=True)
+
+    @property
+    def name(self):
+        """Return the name of the zone."""
+        return self._name
+
+    @property
+    def state(self):
+        """Return the state of the zone."""
+        if self._pwstate == f'{self._zid}OFF':
+            return STATE_OFF
+        else:
+            return STATE_ON
+
+    @property
+    def volume_level(self):
+        """Volume level of the media player (0..1)."""
+        return self._volume / self._volume_max
+
+    @property
+    def source_list(self):
+        """Return the list of available input sources."""
+        return sorted(list(self._source_list.keys()))
+
+    @property
+    def supported_features(self):
+        """Flag media player features that are supported."""
+        return SUPPORT_DENON_ZONE
+
+    @property
+    def source(self):
+        """Return the current input source."""
+        for pretty_name, name in self._source_list.items():
+            if self._mediasource == name:
+                return pretty_name
+
+    async def async_turn_on(self):
+        """Turn the media player zone on."""
+        self._denon232_receiver.serial_command(f'{self._zid}ON')
+        
+    async def async_turn_off(self):
+        """Turn off media player."""
+        self._denon232_receiver.serial_command(f'{self._zid}OFF')
+
+    def volume_up(self):
+        """Volume up media player."""
+        self._denon232_receiver.serial_command(f'{self._zid}UP')
+
+    def volume_down(self):
+        """Volume down media player."""
+        self._denon232_receiver.serial_command(f'{self._zid}DOWN')
+
+    def set_volume_level(self, volume):
+        """Set volume level, range 0..1."""
+        self._denon232_receiver.serial_command(f'{self._zid}' +
+                            str(round(volume * self._volume_max)).zfill(2))
+
+    def select_source(self, source):
+        """Select input source."""
+        self._denon232_receiver.serial_command(f'{self._zid}' + self._source_list.get(source))
