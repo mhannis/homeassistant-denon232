@@ -15,9 +15,8 @@ import voluptuous as vol
 from homeassistant.components.media_player import (
     MediaPlayerEntity, PLATFORM_SCHEMA)
 
-from homeassistant.components.media_player.const import (
-    SUPPORT_SELECT_SOURCE, SUPPORT_TURN_OFF, SUPPORT_TURN_ON,
-    SUPPORT_VOLUME_MUTE, SUPPORT_VOLUME_SET,SUPPORT_VOLUME_STEP)
+from homeassistant.components.media_player.const import MediaPlayerEntityFeature
+
 from homeassistant.const import (
     CONF_NAME, STATE_OFF, STATE_ON, STATE_UNKNOWN)
 import homeassistant.helpers.config_validation as cv
@@ -26,8 +25,9 @@ _LOGGER = logging.getLogger(__name__)
 
 DEFAULT_NAME = 'Denon232 Receiver'
 
-SUPPORT_DENON = SUPPORT_VOLUME_SET | SUPPORT_VOLUME_STEP | \
-    SUPPORT_VOLUME_MUTE | SUPPORT_TURN_ON | SUPPORT_TURN_OFF | SUPPORT_SELECT_SOURCE
+SUPPORT_DENON = MediaPlayerEntityFeature.VOLUME_SET | MediaPlayerEntityFeature.VOLUME_STEP | \
+    MediaPlayerEntityFeature.VOLUME_MUTE | MediaPlayerEntityFeature.TURN_ON | \
+    MediaPlayerEntityFeature.TURN_OFF | MediaPlayerEntityFeature.SELECT_SOURCE
 
 CONF_SERIAL_PORT = 'serial_port'
 
