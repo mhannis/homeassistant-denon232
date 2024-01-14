@@ -210,7 +210,16 @@ class Denon232Zone(MediaPlayerEntity):
     
     def update(self):
         """Get the latest details from the zone."""
-        self._pwstate = self._denon232_receiver.serial_command(f'{self._zid}?', response=True)
+        # Multiple states are returned by the zone query command
+        # so we have handly things a bit different to the main zone
+        lines = self._denon232_receiver.serial_command(f'{self._zid}?', response=True, all_lines=True)
+        # assume lines are always in the order of source, volume, power state
+        self._mediasource = lines[0][len(self._zid):]
+        self._volume = int(lines[1][len(self._zid):len(self._zid) + 2])
+        if self._volume == 99:
+            self._volume = 0
+        _LOGGER.debug(f"{self._zid} Volume value Saved: %s", self._volume)
+        self._pwstate = lines[2][len(self._zid):]
 
     @property
     def name(self):
