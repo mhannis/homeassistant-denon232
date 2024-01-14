@@ -27,7 +27,8 @@ DEFAULT_NAME = 'Denon232 Receiver'
 
 SUPPORT_DENON = MediaPlayerEntityFeature.VOLUME_SET | MediaPlayerEntityFeature.VOLUME_STEP | \
     MediaPlayerEntityFeature.VOLUME_MUTE | MediaPlayerEntityFeature.TURN_ON | \
-    MediaPlayerEntityFeature.TURN_OFF | MediaPlayerEntityFeature.SELECT_SOURCE
+    MediaPlayerEntityFeature.TURN_OFF | MediaPlayerEntityFeature.SELECT_SOURCE | \
+    MediaPlayerEntityFeature.SELECT_SOUND_MODE
 
 CONF_SERIAL_PORT = 'serial_port'
 
@@ -36,7 +37,13 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend({
     vol.Optional(CONF_NAME, default=DEFAULT_NAME): cv.string,
 })
 
-NORMAL_INPUTS = {'CD': 'CD', 'DVD': 'DVD', 'TV': 'TV/CBL','HDP': 'HDP', 'Video Aux': 'V.AUX', 'SAT':'SAT'}
+NORMAL_INPUTS = {'CD': 'CD', 'DVD': 'DVD', 'TV': 'TV', 'Video Aux': 'V.AUX', 'DBS':'DBS/SAT',
+                 'Phono': 'PHONO', 'Tuner': 'TUNER', 'VDP': 'VDP', 'VCR-1': 'VCR-1', 'VCR-2': 'VCR-2',
+                 'CDR/Tape': 'CDR/TAPE1'}
+SOUND_MODES = {'Stereo': 'STEREO', 'Direct': 'DIRECT', 'Pure Direct': 'PURE DIRECT',
+               'Dolby Digital': 'DOLBY DIGITAL', 'DTS Surround': 'DTS SURROUND', 'Rock Arena': 'ROCK ARENA',
+               'Jazz Club': 'JAZZ CLUB', 'Mono Movie': 'MONO MOVIE', 'Matrix': 'MATRIX',
+               'Video Game': 'VIDEO GAME', 'Virtual': 'VIRTUAL'}
 
 # Sub-modes of 'NET/USB'
 # {'USB': 'USB', 'iPod Direct': 'IPD', 'Internet Radio': 'IRP',
@@ -61,7 +68,9 @@ class Denon(MediaPlayerEntity):
         # Initial value 60dB, changed if we get a MVMAX
         self._volume_max = 60
         self._source_list = NORMAL_INPUTS.copy()
+        self._sound_mode_list = SOUND_MODES.copy()
         self._mediasource = ''
+        self._denon_sound_mode = ''
         self._muted = False
         self._denon232_receiver = denon232_receiver
 
@@ -83,6 +92,7 @@ class Denon(MediaPlayerEntity):
                 _LOGGER.debug("MV Value Saved: %s", self._volume)
         self._muted = (self._denon232_receiver.serial_command('MU?', response=True) == 'MUON')
         self._mediasource = self._denon232_receiver.serial_command('SI?', response=True)[len('SI'):]
+        self._denon_sound_mode = self._denon232_receiver.serial_command('MS?', response=True)[len('MS'):]
 
     @property
     def name(self):
@@ -113,6 +123,11 @@ class Denon(MediaPlayerEntity):
         return sorted(list(self._source_list.keys()))
 
     @property
+    def sound_mode_list(self):
+        """Return the list of available sound modes."""
+        return sorted(list(self._sound_mode_list.keys()))
+
+    @property
     def supported_features(self):
         """Flag media player features that are supported."""
         return SUPPORT_DENON
@@ -122,6 +137,13 @@ class Denon(MediaPlayerEntity):
         """Return the current input source."""
         for pretty_name, name in self._source_list.items():
             if self._mediasource == name:
+                return pretty_name
+
+    @property
+    def sound_mode(self):
+        """Return the current sound mode."""
+        for pretty_name, name in self._sound_mode_list.items():
+            if self._denon_sound_mode == name:
                 return pretty_name
 
     async def async_turn_on(self):
@@ -152,3 +174,7 @@ class Denon(MediaPlayerEntity):
     def select_source(self, source):
         """Select input source."""
         self._denon232_receiver.serial_command('SI' + self._source_list.get(source))
+
+    def select_sound_mode(self, sound_mode):
+        """Select sound mode."""
+        self._denon232_receiver.serial_command('MS' + self._sound_mode_list.get(sound_mode))
