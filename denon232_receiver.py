@@ -29,7 +29,8 @@ class Denon232Receiver(object):
     def __init__(self, serial_port, timeout=DEFAULT_TIMEOUT,
                  write_timeout=DEFAULT_WRITE_TIMEOUT):
         """Create RS232 connection."""
-        self.ser = serial.Serial(serial_port, baudrate=9600, bytesize=8, parity='N', stopbits=1, timeout=timeout, write_timeout=write_timeout)
+        # Serial port settings are automagically ignored for non local serial ports
+        self.ser = serial.serial_for_url(serial_port, baudrate=9600, bytesize=8, parity='N', stopbits=1, timeout=timeout, write_timeout=write_timeout)
         self.lock = threading.Lock()
 
     def serial_command(self, cmd, response=False, all_lines=False):
