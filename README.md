@@ -1,6 +1,6 @@
-# HomeAssistant_Denon_RS232
+# Home Assistant Denon RS232
 
-This is a Denon AVR / Receiver Custom Component for Home Assistant that allows you to control a receiver through RS232.  This custom component should support any Denon receiver with a serial port.  This implementation was based off of the following integrations:
+This is a Denon AVR / Receiver Custom Component for Home Assistant that allows you to control a receiver through RS232.  This custom component should support any Denon receiver with a serial port. This implementation was based off of the following integrations:
 
 https://github.com/home-assistant/home-assistant/blob/dev/homeassistant/components/media_player/denon.py
 https://github.com/joopert/nad_receiver/blob/master/nad_receiver/__init__.py 
@@ -16,8 +16,8 @@ config/custom_components/denon232/
 ```
 media_player:
   - platform: denon232
-    serial_port: /dev/ttyUSB0
+    serial_port: socket://your.network.device:portnumber
     name: Receiver
 ```
 
-The serial_port device referenced should be changed to match what is being used in your setup.  In this setup a USB to serial converter was used through /dev/ttyUSB0.  If USB is being used ensure Home Assistant has access to USB.
+The serial_port device referenced should be changed to match what is being used in your setup. In this example a USB to serial converter was used on a remote machine and exported through ser2net. A local USB device can also be used.
