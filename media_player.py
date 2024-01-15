@@ -205,10 +205,12 @@ class Denon232Device(MediaPlayerEntity):
         self._denon232_receiver.serial_command('MS' + self._sound_mode_list.get(sound_mode))
 
     def play_media(self, media_type, media_id, **kwargs):
-        """Play radio station by preset."""
+        """Play radio station by preset number or frequency."""
         if self.source == 'Tuner':
             if media_type.lower() == "radio_preset":
                 self._denon232_receiver.serial_command('TP' + media_id)
+            elif media_type.lower() == "radio_freq":
+                self._denon232_receiver.serial_command('TF' + media_id)
 
 class Denon232Zone(MediaPlayerEntity):
     """Representation of a Denon Zone."""
