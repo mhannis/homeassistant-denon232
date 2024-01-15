@@ -21,20 +21,18 @@ from homeassistant.const import (
     CONF_NAME, STATE_OFF, STATE_ON, STATE_UNKNOWN)
 import homeassistant.helpers.config_validation as cv
 
+from .denon232_receiver import Denon232Receiver
+
 _LOGGER = logging.getLogger(__name__)
 
 DEFAULT_NAME = 'Denon232 Receiver'
 
-DEFAULT_ZONES = {}
-
-SUPPORT_DENON = MediaPlayerEntityFeature.VOLUME_SET | MediaPlayerEntityFeature.VOLUME_STEP | \
-    MediaPlayerEntityFeature.VOLUME_MUTE | MediaPlayerEntityFeature.TURN_ON | \
-    MediaPlayerEntityFeature.TURN_OFF | MediaPlayerEntityFeature.SELECT_SOURCE | \
-    MediaPlayerEntityFeature.SELECT_SOUND_MODE
-
 SUPPORT_DENON_ZONE = MediaPlayerEntityFeature.VOLUME_SET | MediaPlayerEntityFeature.VOLUME_STEP | \
     MediaPlayerEntityFeature.TURN_ON | MediaPlayerEntityFeature.TURN_OFF | \
     MediaPlayerEntityFeature.SELECT_SOURCE
+
+SUPPORT_DENON = SUPPORT_DENON_ZONE | MediaPlayerEntityFeature.VOLUME_MUTE | \
+    MediaPlayerEntityFeature.SELECT_SOUND_MODE
 
 CONF_SERIAL_PORT = 'serial_port'
 
@@ -49,7 +47,8 @@ NORMAL_INPUTS = {'CD': 'CD', 'DVD': 'DVD', 'TV': 'TV', 'Video Aux': 'V.AUX', 'DB
 SOUND_MODES = {'Stereo': 'STEREO', 'Direct': 'DIRECT', 'Pure Direct': 'PURE DIRECT',
                'Dolby Digital': 'DOLBY DIGITAL', 'DTS Surround': 'DTS SURROUND', 'Rock Arena': 'ROCK ARENA',
                'Jazz Club': 'JAZZ CLUB', 'Mono Movie': 'MONO MOVIE', 'Matrix': 'MATRIX',
-               'Video Game': 'VIDEO GAME', 'Virtual': 'VIRTUAL', 'Multi-channel Stereo': '5CH STEREO'}
+               'Video Game': 'VIDEO GAME', 'Virtual': 'VIRTUAL', 'Multi-channel Stereo': '5CH STEREO',
+               'Classic Concert': 'CLASSIC CONCERT'}
 
 # Sub-modes of 'NET/USB'
 # {'USB': 'USB', 'iPod Direct': 'IPD', 'Internet Radio': 'IRP',
@@ -74,7 +73,6 @@ def determine_zones(receiver):
 
 def setup_platform(hass, config, add_devices, discovery_info=None):
     """Set up the Denon232 platform."""
-    from .denon232_receiver import Denon232Receiver
 
     receiver = Denon232Receiver(config.get(CONF_SERIAL_PORT))
     # Add receiver and configured zones
@@ -208,6 +206,7 @@ class Denon232Device(MediaPlayerEntity):
 
 class Denon232Zone(MediaPlayerEntity):
     """Representation of a Denon Zone."""
+
     def __init__(self, name, denon232_receiver, zone_identifier):
         """Initialize the Denon Receiver Zone."""
         self._name = name
