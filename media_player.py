@@ -37,12 +37,10 @@ SUPPORT_DENON_ZONE = MediaPlayerEntityFeature.VOLUME_SET | MediaPlayerEntityFeat
     MediaPlayerEntityFeature.SELECT_SOURCE
 
 CONF_SERIAL_PORT = 'serial_port'
-CONF_ZONES = 'zones'
 
 PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend({
     vol.Required(CONF_SERIAL_PORT): cv.string,
     vol.Optional(CONF_NAME, default=DEFAULT_NAME): cv.string,
-    vol.Optional(CONF_ZONES, default=DEFAULT_ZONES): {cv.string: cv.string},
 })
 
 NORMAL_INPUTS = {'CD': 'CD', 'DVD': 'DVD', 'TV': 'TV', 'Video Aux': 'V.AUX', 'DBS':'DBS/SAT',
@@ -57,6 +55,23 @@ SOUND_MODES = {'Stereo': 'STEREO', 'Direct': 'DIRECT', 'Pure Direct': 'PURE DIRE
 # {'USB': 'USB', 'iPod Direct': 'IPD', 'Internet Radio': 'IRP',
 #  'Favorites': 'FVP'}
 
+def determine_zones(receiver):
+    """Try to find the available zones and their identifiers."""
+    zones = {}
+    _LOGGER.debug("Checking zone 2 capability")
+    if len(receiver.serial_command('Z2?', response=True, all_lines=True)) > 0:
+        zones["Zone 2"] = 'Z2'
+        _LOGGER.debug("Found zone 2 with zone id Z2")
+    _LOGGER.debug("Checking zone 3 capability")
+    if len(receiver.serial_command('Z3?', response=True, all_lines=True)) > 0:
+        zones["Zone 3"] = 'Z3'
+        _LOGGER.debug("Found zone 3 with zone id Z3")
+    elif len(receiver.serial_command('Z1?', response=True, all_lines=True)) > 0:
+        zones["Zone 3"] = 'Z1'
+        _LOGGER.debug("Found zone 3 with zone id Z1")
+
+    return zones
+
 def setup_platform(hass, config, add_devices, discovery_info=None):
     """Set up the Denon232 platform."""
     from .denon232_receiver import Denon232Receiver
@@ -64,7 +79,8 @@ def setup_platform(hass, config, add_devices, discovery_info=None):
     receiver = Denon232Receiver(config.get(CONF_SERIAL_PORT))
     # Add receiver and configured zones
     player_entity_list = [Denon232Device(config.get(CONF_NAME), receiver)]
-    for name, id in config.get(CONF_ZONES).items():
+    zones = determine_zones(receiver)
+    for name, id in zones.items():
         player_entity_list.append(Denon232Zone(f'{config.get(CONF_NAME)} {name}', receiver, id))
     add_devices(player_entity_list)
 
