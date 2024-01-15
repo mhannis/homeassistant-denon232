@@ -1,15 +1,14 @@
 # Home Assistant Denon RS232
 
-This is a Denon AVR / Receiver Custom Component for Home Assistant that allows you to control a receiver through RS232.  This custom component should support any Denon receiver with a serial port. This implementation was based off of the following integrations:
+This is a Denon AVR / Receiver Custom Component for Home Assistant that allows you to control a receiver through RS232. This custom component should support any Denon receiver with a serial port.
+As I have only have my own device to test (AVR-3805), development focuses specifically on this device's features. 
+This implementation is a fork of the original implementation by [bluepixel00](https://github.com/bluepixel00/HomeAssistant_Denon_RS232) and takes inspiration from other Home Assistant media player integrations.
 
-https://github.com/home-assistant/home-assistant/blob/dev/homeassistant/components/media_player/denon.py
-https://github.com/joopert/nad_receiver/blob/master/nad_receiver/__init__.py 
-
-Setup:
+## Setup:
 1) If not present create the custom component folder structure under your Home Assistant config directory.
-config/custom_components/denon232/
+`config/custom_components/denon232/`
 
-2) Place ``__init__.py``, media_player.py and denon232_receiver.py in the denon232 folder under custom components folder.
+2) Place `__init__.py`, `media_player.py` and `denon232_receiver.py` in the denon232 folder under custom components folder.
 
 3) Add configuration details to configuration.yaml located in the config directory:
 
@@ -20,4 +19,4 @@ media_player:
     name: Receiver
 ```
 
-The serial_port device referenced should be changed to match what is being used in your setup. In this example a USB to serial converter was used on a remote machine and exported through ser2net. A local USB device can also be used.
+The `serial_port` device referenced should be changed to match what is being used in your setup. In this example a USB to serial converter was used on a remote machine and exported through ser2net. A local USB device can also be used.
