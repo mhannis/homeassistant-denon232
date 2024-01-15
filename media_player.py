@@ -212,7 +212,7 @@ class Denon232Zone(MediaPlayerEntity):
         # but sometimes additional events can sneak in
         for line in self._denon232_receiver.serial_command(f'{self._zid}?', response=True, all_lines=True):
             if line == f'{self._zid}ON' or line == f'{self._zid}OFF':
-                self._pwstate = f'STATE_{line[len(self._zid):]}'
+                self._pwstate = line
             elif line[len(self._zid):].isdigit():
                 self._volume = int(lines[1][len(self._zid):len(self._zid) + 2])
                 if self._volume == 99:
@@ -229,8 +229,11 @@ class Denon232Zone(MediaPlayerEntity):
 
     @property
     def state(self):
-        """Return the state of the zone."""
-        return self._pwstate
+        """Return the state of the device."""
+        if self._pwstate == f'{self._zid}OFF':
+            return STATE_OFF
+        else:
+            return STATE_ON
 
     @property
     def volume_level(self):
