@@ -32,7 +32,7 @@ SUPPORT_DENON_ZONE = MediaPlayerEntityFeature.VOLUME_SET | MediaPlayerEntityFeat
     MediaPlayerEntityFeature.SELECT_SOURCE
 
 SUPPORT_DENON = SUPPORT_DENON_ZONE | MediaPlayerEntityFeature.VOLUME_MUTE | \
-    MediaPlayerEntityFeature.SELECT_SOUND_MODE
+    MediaPlayerEntityFeature.SELECT_SOUND_MODE | MediaPlayerEntityFeature.PLAY_MEDIA
 
 CONF_SERIAL_PORT = 'serial_port'
 
@@ -203,6 +203,12 @@ class Denon232Device(MediaPlayerEntity):
     def select_sound_mode(self, sound_mode):
         """Select sound mode."""
         self._denon232_receiver.serial_command('MS' + self._sound_mode_list.get(sound_mode))
+
+    def play_media(self, media_type, media_id, **kwargs):
+        """Play radio station by preset."""
+        if self.source == 'Tuner':
+            if media_type.lower() == "radio_preset":
+                self._denon232_receiver.serial_command('TP' + media_id)
 
 class Denon232Zone(MediaPlayerEntity):
     """Representation of a Denon Zone."""

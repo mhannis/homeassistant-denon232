@@ -23,3 +23,15 @@ The `serial_port` device referenced should be changed to match what is being use
 
 ## Zones
 This integration supports multiple zones. Zones 2 and 3 are automagically detected when supported and added as additional `media_player` entities.
+
+## Play tuner preset
+When the main receiver source is set to Tuner, the receiver can be set to play radio presets through the `media_player.play_media` service.
+
+```
+service: media_player.play_media
+target:
+  entity_id: media_player.receiver
+data:
+  media_content_id: "A1"
+  media_content_type: radio_preset
+```
