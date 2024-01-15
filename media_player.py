@@ -230,7 +230,7 @@ class Denon232Zone(MediaPlayerEntity):
             if line == f'{self._zid}ON' or line == f'{self._zid}OFF':
                 self._pwstate = line
             elif line[len(self._zid):].isdigit():
-                self._volume = int(lines[1][len(self._zid):len(self._zid) + 2])
+                self._volume = int(line[len(self._zid):len(self._zid) + 2])
                 if self._volume == 99:
                     self._volume = 0
                 _LOGGER.debug(f'{self._zid} Volume value Saved: {self._volume}')
