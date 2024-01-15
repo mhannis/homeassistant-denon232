@@ -21,3 +21,12 @@ media_player:
 ```
 
 The serial_port device referenced should be changed to match what is being used in your setup. In this example a USB to serial converter was used on a remote machine and exported through ser2net. A local USB device can also be used.
+
+## Zones
+This integration supports multiple zones. When configured, zones are added as additional `media_player` entities. Zones can be configured in `configuration.yaml` by adding the `zones` config key. The configuration defines a zone name and its zone identifier used in serial commands. Zone 3 is sometimes seen as 'Z1' as in the example below but also as 'Z3'.
+
+```
+    zones:
+      "Zone 2": Z2
+      "Zone 3": Z1
+```
