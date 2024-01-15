@@ -25,6 +25,8 @@ _LOGGER = logging.getLogger(__name__)
 
 DEFAULT_NAME = 'Denon232 Receiver'
 
+DEFAULT_ZONES = {}
+
 SUPPORT_DENON = MediaPlayerEntityFeature.VOLUME_SET | MediaPlayerEntityFeature.VOLUME_STEP | \
     MediaPlayerEntityFeature.VOLUME_MUTE | MediaPlayerEntityFeature.TURN_ON | \
     MediaPlayerEntityFeature.TURN_OFF | MediaPlayerEntityFeature.SELECT_SOURCE | \
@@ -35,10 +37,12 @@ SUPPORT_DENON_ZONE = MediaPlayerEntityFeature.VOLUME_SET | MediaPlayerEntityFeat
     MediaPlayerEntityFeature.SELECT_SOURCE
 
 CONF_SERIAL_PORT = 'serial_port'
+CONF_ZONES = 'zones'
 
 PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend({
     vol.Required(CONF_SERIAL_PORT): cv.string,
     vol.Optional(CONF_NAME, default=DEFAULT_NAME): cv.string,
+    vol.Optional(CONF_ZONES, default=DEFAULT_ZONES): {cv.string: cv.string},
 })
 
 NORMAL_INPUTS = {'CD': 'CD', 'DVD': 'DVD', 'TV': 'TV', 'Video Aux': 'V.AUX', 'DBS':'DBS/SAT',
@@ -59,18 +63,10 @@ def setup_platform(hass, config, add_devices, discovery_info=None):
 
     receiver = Denon232Receiver(config.get(CONF_SERIAL_PORT))
     # Add receiver and configured zones
-    add_devices(
-        [Denon232Device(
-            config.get(CONF_NAME), receiver
-        ),
-        Denon232Zone(
-            f"{config.get(CONF_NAME)} Zone 2", receiver, 'Z2'
-        ),
-        Denon232Zone(
-            f"{config.get(CONF_NAME)} Zone 3", receiver, 'Z1'
-        )
-        ]
-    )
+    player_entity_list = [Denon232Device(config.get(CONF_NAME), receiver)]
+    for name, id in config.get(CONF_ZONES).items():
+        player_entity_list.append(Denon232Zone(f'{config.get(CONF_NAME)} {name}', receiver, id))
+    add_devices(player_entity_list)
 
 class Denon232Device(MediaPlayerEntity):
     """Representation of a Denon device."""
