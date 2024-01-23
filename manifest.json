@@ -1,7 +1,8 @@
 {
     "domain": "denon232",
     "name": "Denon RS232",
-    "codeowners": [],
+    "codeowners": ["bajansen"],
+    "config_flow": true,
     "dependencies": [],
     "documentation": "https://github.com/bajansen/homeassistant-denon232",
     "iot_class": "local_polling",
