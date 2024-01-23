@@ -34,11 +34,23 @@ from .const import (
     CONF_ZONES,
     CONF_DEVICE,
     CONF_NAME,
-    SUPPORT_DENON_ZONE,
-    SUPPORT_DENON,
-    NORMAL_INPUTS,
-    SOUND_MODES
 )
+
+SUPPORT_DENON_ZONE = MediaPlayerEntityFeature.VOLUME_SET | MediaPlayerEntityFeature.VOLUME_STEP | \
+    MediaPlayerEntityFeature.TURN_ON | MediaPlayerEntityFeature.TURN_OFF | \
+    MediaPlayerEntityFeature.SELECT_SOURCE
+
+SUPPORT_DENON = SUPPORT_DENON_ZONE | MediaPlayerEntityFeature.VOLUME_MUTE | \
+    MediaPlayerEntityFeature.SELECT_SOUND_MODE | MediaPlayerEntityFeature.PLAY_MEDIA
+
+NORMAL_INPUTS = {'CD': 'CD', 'DVD': 'DVD', 'TV': 'TV', 'Video Aux': 'V.AUX', 'DBS':'DBS/SAT',
+                 'Phono': 'PHONO', 'Tuner': 'TUNER', 'VDP': 'VDP', 'VCR-1': 'VCR-1', 'VCR-2': 'VCR-2',
+                 'CDR/Tape': 'CDR/TAPE1'}
+SOUND_MODES = {'Stereo': 'STEREO', 'Direct': 'DIRECT', 'Pure Direct': 'PURE DIRECT',
+               'Dolby Digital': 'DOLBY DIGITAL', 'DTS Surround': 'DTS SURROUND', 'Rock Arena': 'ROCK ARENA',
+               'Jazz Club': 'JAZZ CLUB', 'Mono Movie': 'MONO MOVIE', 'Matrix': 'MATRIX',
+               'Video Game': 'VIDEO GAME', 'Virtual': 'VIRTUAL', 'Multi-channel Stereo': '5CH STEREO',
+               'Classic Concert': 'CLASSIC CONCERT'}
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -50,18 +62,6 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
     for zone in config[CONF_ZONES]:
         player_entities.append(Denon232Zone(f'{config[CONF_NAME]} {zone["zone_name"]}', receiver, zone["zone_id"]))
     async_add_entities(player_entities)
-
-
-# def setup_platform(hass, config, add_devices, discovery_info=None):
-#     """Set up the Denon232 platform."""
-
-#     receiver = Denon232Receiver(config.get(CONF_SERIAL_PORT))
-#     # Add receiver and configured zones
-#     player_entity_list = [Denon232Device(config.get(CONF_NAME), receiver)]
-#     zones = determine_zones(receiver)
-#     for name, id in zones.items():
-#         player_entity_list.append(Denon232Zone(f'{config.get(CONF_NAME)} {name}', receiver, id))
-#     add_devices(player_entity_list)
 
 class Denon232Device(MediaPlayerEntity):
     """Representation of a Denon device."""
