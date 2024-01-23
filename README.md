@@ -8,21 +8,12 @@ This implementation is a fork of the original implementation by [bluepixel00](ht
 1) If not present create the custom component folder structure under your Home Assistant config directory.
 `config/custom_components/denon232/`
 
-2) Place `__init__.py`, `media_player.py` and `denon232_receiver.py` in the denon232 folder under custom components folder.
+2) Place all `.py` and `.json` files in the denon232 folder under custom components folder.
 
-3) Add configuration details to configuration.yaml located in the config directory:
-
-```
-media_player:
-  - platform: denon232
-    serial_port: socket://your.network.device:portnumber
-    name: Receiver
-```
-
-The `serial_port` device referenced should be changed to match what is being used in your setup. In this example a USB to serial converter was used on a remote machine and exported through ser2net. A local USB device can also be used.
+3) Configure the Denon RS232 integration through a config flow.
 
 ## Zones
-This integration supports multiple zones. Zones 2 and 3 are automagically detected when supported and added as additional `media_player` entities.
+This integration supports multiple zones. Zones 2 and 3 are automagically detected when supported and can be added as additional `media_player` entities through the config flow.
 
 ## Play tuner preset
 When the main receiver source is set to Tuner, the receiver can be set to play radio presets and frequencies through the `media_player.play_media` service.
