@@ -1,0 +1,33 @@
+{
+    "config": {
+        "error": {
+            "connection_error": "Could not connect to the specified device or socket",
+            "not_supported": "Unexpected output. This device does not appear to be supported by this integration."
+        },
+        "step": {
+            "user": {
+                "title": "Add Device",
+                "description": "Add Denon Device",
+                "data": {
+                    "serial_port": "Serial port device."
+                }
+            },
+            "setup": {
+                "title": "Device setup",
+                "description": "Setup Denon 232 Device",
+                "data": {
+                    "device_name": "Device name.",
+                    "zone_setup": "Configure additional zones"
+                }
+            },
+            "zone": {
+                "title": "Zone setup",
+                "description": "Setup Denon 232 Zone",
+                "data": {
+                    "zone_name": "Zone name.",
+                    "zone_setup": "Configure additional zones"
+                }
+            }
+        }
+    }
+}
