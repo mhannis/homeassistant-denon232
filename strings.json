@@ -10,9 +10,6 @@
                 "description": "Add Denon Device",
                 "data": {
                     "serial_port": "Serial port device."
-                },
-                "data_description": {
-                    "device": "Can be local or a serial device exported through the network"
                 }
             },
             "setup": {
