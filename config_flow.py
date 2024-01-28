@@ -41,6 +41,7 @@ class Denon232ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         self.device = None
         self.data = {}
         self.zones = []
+        self.data[CONF_ZONES] = []
 
     def determine_zones(self):
         """Attempt to find the available zones and their identifiers."""
@@ -82,9 +83,10 @@ class Denon232ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
             # Discover zones
             self.zones = self.determine_zones()
-            if user_input.get(CONF_ZONE_SETUP, False) and self.zones is not {}:
-                self.data[CONF_ZONES] = []
+            if user_input.get(CONF_ZONE_SETUP, False) and self.zones is not []:
                 return await self.async_step_zone()
+            else
+                return self.async_create_entry(title=self.data[CONF_NAME], data=self.data)
 
         return self.async_show_form(step_id="setup", data_schema=SETUP_SCHEMA, errors=errors)
 
