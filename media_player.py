@@ -178,11 +178,13 @@ class Denon232Device(MediaPlayerEntity):
 
     def play_media(self, media_type, media_id, **kwargs):
         """Play radio station by preset number or frequency."""
+        # The function will automatically handle presets and frequencies passed to it
         if self.source == 'Tuner':
-            if media_type.lower() == "radio_preset":
-                self._denon232_receiver.serial_command('TP' + media_id)
-            elif media_type.lower() == "radio_freq":
-                self._denon232_receiver.serial_command('TF' + media_id)
+            if media_type.lower() == "channel" and len(media_id >= 2):
+                if media_id[0] in ['A', 'B', 'C', 'D', 'E', 'F', 'G'] and media_id[1] >= 0 and media_id[1] <= 8:
+                    self._denon232_receiver.serial_command('TP' + media_id)
+                else if int(media_id) >= 8800 and int(media_id) <= 10800
+                    self._denon232_receiver.serial_command('TF' + media_id.zfill(6))
 
 class Denon232Zone(MediaPlayerEntity):
     """Representation of a Denon Zone."""

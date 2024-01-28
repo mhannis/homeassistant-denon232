@@ -17,6 +17,7 @@ This integration supports multiple zones. Zones 2 and 3 are automagically detect
 
 ## Play tuner preset
 When the main receiver source is set to Tuner, the receiver can be set to play radio presets and frequencies through the `media_player.play_media` service.
+The integration will automatically determine whether to tune to a frequency or a preconfigured preset. Frequencies have to be specified without a dot or comma as in the example.
 
 ```
 service: media_player.play_media
@@ -24,12 +25,12 @@ target:
   entity_id: media_player.receiver
 data:
   media_content_id: "A1"
-  media_content_type: radio_preset
+  media_content_type: channel
 ---
 service: media_player.play_media
 target:
   entity_id: media_player.receiver
 data:
-  media_content_id: "009220"
-  media_content_type: radio_freq
+  media_content_id: "9220"
+  media_content_type: channel
 ```
