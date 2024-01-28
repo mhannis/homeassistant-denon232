@@ -1,4 +1,3 @@
-import logging
 import voluptuous as vol
 
 from homeassistant import config_entries
@@ -9,7 +8,8 @@ from .const import (
     CONF_NAME,
     CONF_ZONES,
     CONF_ZONE_SETUP,
-    CONF_ZONE_NAME
+    CONF_ZONE_NAME,
+    LOGGER
 )
 from .denon232_receiver import Denon232Receiver
 
@@ -31,8 +31,6 @@ ZONE_SCHEMA = vol.Schema(
     }
 )
 
-_LOGGER = logging.getLogger(__name__)
-
 class Denon232ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     """Denon232 config flow."""
 
@@ -47,17 +45,17 @@ class Denon232ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     def determine_zones(self):
         """Attempt to find the available zones and their identifiers."""
         zones = []
-        _LOGGER.debug("Checking zone 2 capability")
+        LOGGER.debug("Checking zone 2 capability")
         if len(self.device.serial_command('Z2?', response=True, all_lines=True)) > 0:
             zones.append('Z2')
-            _LOGGER.debug("Found zone 2 with zone id Z2")
-        _LOGGER.debug("Checking zone 3 capability")
+            LOGGER.debug("Found zone 2 with zone id Z2")
+        LOGGER.debug("Checking zone 3 capability")
         if len(self.device.serial_command('Z3?', response=True, all_lines=True)) > 0:
             zones.append('Z3')
-            _LOGGER.debug("Found zone 3 with zone id Z3")
+            LOGGER.debug("Found zone 3 with zone id Z3")
         elif len(self.device.serial_command('Z1?', response=True, all_lines=True)) > 0:
             zones.append('Z1')
-            _LOGGER.debug("Found zone 3 with zone id Z1")
+            LOGGER.debug("Found zone 3 with zone id Z1")
 
         return zones
 

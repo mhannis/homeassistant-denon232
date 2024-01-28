@@ -8,7 +8,6 @@ https://github.com/joopert/nad_receiver/blob/master/nad_receiver/__init__.py
 For more details about this platform, please refer to the documentation at
 https://home-assistant.io/components/media_player.denon/
 """
-import logging
 
 import voluptuous as vol
 
@@ -34,6 +33,7 @@ from .const import (
     CONF_ZONES,
     CONF_DEVICE,
     CONF_NAME,
+    LOGGER
 )
 
 SUPPORT_DENON_ZONE = MediaPlayerEntityFeature.VOLUME_SET | MediaPlayerEntityFeature.VOLUME_STEP | \
@@ -51,8 +51,6 @@ SOUND_MODES = {'Stereo': 'STEREO', 'Direct': 'DIRECT', 'Pure Direct': 'PURE DIRE
                'Jazz Club': 'JAZZ CLUB', 'Mono Movie': 'MONO MOVIE', 'Matrix': 'MATRIX',
                'Video Game': 'VIDEO GAME', 'Virtual': 'VIRTUAL', 'Multi-channel Stereo': '5CH STEREO',
                'Classic Concert': 'CLASSIC CONCERT'}
-
-_LOGGER = logging.getLogger(__name__)
 
 async def async_setup_entry(hass, config_entry, async_add_entities):
     """Set up the Denon232 receiver from a config entry"""
@@ -89,13 +87,13 @@ class Denon232Device(MediaPlayerEntity):
             if line.startswith('MVMAX '):
                 # only grab two digit max, don't care about any half digit
                 self._volume_max = int(line[len('MVMAX '):len('MVMAX XX')])
-                _LOGGER.debug("MVMAX Value Saved: %s", self._volume_max)
+                LOGGER.debug("MVMAX Value Saved: %s", self._volume_max)
                 continue
             if line.startswith('MV'):
                 self._volume = int(line[len('MV'):len('MVXX')])
                 if self._volume == 99:
                     self._volume = 0
-                _LOGGER.debug("MV Value Saved: %s", self._volume)
+                LOGGER.debug("MV Value Saved: %s", self._volume)
         self._muted = (self._denon232_receiver.serial_command('MU?', response=True) == 'MUON')
         self._mediasource = self._denon232_receiver.serial_command('SI?', response=True)[len('SI'):]
         self._denon_sound_mode = self._denon232_receiver.serial_command('MS?', response=True)[len('MS'):]
@@ -221,7 +219,7 @@ class Denon232Zone(MediaPlayerEntity):
                 self._volume = int(line[len(self._zid):len(self._zid) + 2])
                 if self._volume == 99:
                     self._volume = 0
-                _LOGGER.debug(f'{self._zid} Volume value Saved: {self._volume}')
+                LOGGER.debug(f'{self._zid} Volume value Saved: {self._volume}')
             # anything not matching above is probably the source
             else:
                 self._mediasource = line[len(self._zid):]

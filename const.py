@@ -1,4 +1,7 @@
 """Constants for the denon232 integration."""
+import logging
+
+LOGGER = logging.getLogger(__package__)
 
 DOMAIN = 'denon232'
 
