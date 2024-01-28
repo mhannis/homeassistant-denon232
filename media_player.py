@@ -33,6 +33,8 @@ from .const import (
     CONF_ZONES,
     CONF_DEVICE,
     CONF_NAME,
+    RECEIVER_INPUTS,
+    SOUND_MODES,
     LOGGER
 )
 
@@ -42,15 +44,6 @@ SUPPORT_DENON_ZONE = MediaPlayerEntityFeature.VOLUME_SET | MediaPlayerEntityFeat
 
 SUPPORT_DENON = SUPPORT_DENON_ZONE | MediaPlayerEntityFeature.VOLUME_MUTE | \
     MediaPlayerEntityFeature.SELECT_SOUND_MODE | MediaPlayerEntityFeature.PLAY_MEDIA
-
-NORMAL_INPUTS = {'CD': 'CD', 'DVD': 'DVD', 'TV': 'TV', 'Video Aux': 'V.AUX', 'DBS':'DBS/SAT',
-                 'Phono': 'PHONO', 'Tuner': 'TUNER', 'VDP': 'VDP', 'VCR-1': 'VCR-1', 'VCR-2': 'VCR-2',
-                 'CDR/Tape': 'CDR/TAPE1'}
-SOUND_MODES = {'Stereo': 'STEREO', 'Direct': 'DIRECT', 'Pure Direct': 'PURE DIRECT',
-               'Dolby Digital': 'DOLBY DIGITAL', 'DTS Surround': 'DTS SURROUND', 'Rock Arena': 'ROCK ARENA',
-               'Jazz Club': 'JAZZ CLUB', 'Mono Movie': 'MONO MOVIE', 'Matrix': 'MATRIX',
-               'Video Game': 'VIDEO GAME', 'Virtual': 'VIRTUAL', 'Multi-channel Stereo': '5CH STEREO',
-               'Classic Concert': 'CLASSIC CONCERT'}
 
 async def async_setup_entry(hass, config_entry, async_add_entities):
     """Set up the Denon232 receiver from a config entry"""
@@ -71,7 +64,7 @@ class Denon232Device(MediaPlayerEntity):
         self._volume = 0
         # Initial value 60dB, changed if we get a MVMAX
         self._volume_max = 60
-        self._source_list = NORMAL_INPUTS.copy()
+        self._source_list = RECEIVER_INPUTS.copy()
         self._sound_mode_list = SOUND_MODES.copy()
         self._mediasource = ''
         self._denon_sound_mode = ''
@@ -202,7 +195,7 @@ class Denon232Zone(MediaPlayerEntity):
         self._volume = 0
         # Initial value 60dB, changed if we get a MVMAX
         self._volume_max = 60
-        self._source_list = NORMAL_INPUTS.copy()
+        self._source_list = RECEIVER_INPUTS.copy()
         self._mediasource = ''
         self._denon232_receiver = denon232_receiver
     
