@@ -80,6 +80,10 @@ class Denon232ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
         if user_input is not None:
             self.data[CONF_NAME] = user_input.get(CONF_NAME, "Denon232 Receiver")
+            # Not exactly recommended, but we have _no_ way of automatically detecting
+            # any device identifiers
+            await self.async_set_unique_id(self.data[CONF_NAME])
+            self._abort_if_unique_id_configured()
 
             # Discover zones
             self.zones = self.determine_zones()

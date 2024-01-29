@@ -25,6 +25,8 @@ from homeassistant.const import (
     STATE_UNKNOWN
 )
 
+from homeassistant.helpers.device_registry import DeviceInfo
+
 import homeassistant.helpers.config_validation as cv
 
 from .denon232_receiver import Denon232Receiver
@@ -49,16 +51,17 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
     """Set up the Denon232 receiver from a config entry"""
     config = hass.data[DOMAIN][config_entry.entry_id]
     receiver = Denon232Receiver(config[CONF_DEVICE])
-    player_entities = [Denon232Device(config[CONF_NAME], receiver)]
+    player_entities = [Denon232Device(config[CONF_NAME], config_entry.unique_id, receiver)]
     for zone in config[CONF_ZONES]:
-        player_entities.append(Denon232Zone(f'{config[CONF_NAME]} {zone["zone_name"]}', receiver, zone["zone_id"]))
+        player_entities.append(Denon232Zone(f'{config[CONF_NAME]} {zone["zone_name"]}', config_entry.unique_id, receiver, zone["zone_id"]))
     async_add_entities(player_entities)
 
 class Denon232Device(MediaPlayerEntity):
     """Representation of a Denon device."""
         
-    def __init__(self, name, denon232_receiver):
+    def __init__(self, name, unique_id, denon232_receiver):
         """Initialize the Denon Receiver device."""
+        self._attr_unique_id = unique_id
         self._name = name
         self._pwstate = 'PWSTANDBY'
         self._volume = 0
@@ -90,6 +93,15 @@ class Denon232Device(MediaPlayerEntity):
         self._muted = (self._denon232_receiver.serial_command('MU?', response=True) == 'MUON')
         self._mediasource = self._denon232_receiver.serial_command('SI?', response=True)[len('SI'):]
         self._denon_sound_mode = self._denon232_receiver.serial_command('MS?', response=True)[len('MS'):]
+
+    @property
+    def device_info(self):
+        """Return the device info."""
+        return DeviceInfo(
+            identifiers={(DOMAIN, self._attr_unique_id)},
+            name=self.name,
+            manufacturer="Denon",
+        )
 
     @property
     def name(self):
@@ -189,8 +201,9 @@ class Denon232Device(MediaPlayerEntity):
 class Denon232Zone(MediaPlayerEntity):
     """Representation of a Denon Zone."""
 
-    def __init__(self, name, denon232_receiver, zone_identifier):
+    def __init__(self, name, unique_id, denon232_receiver, zone_identifier):
         """Initialize the Denon Receiver Zone."""
+        self._attr_unique_id = f'{unique_id}_{zone_identifier}'
         self._name = name
         self._zid = zone_identifier
         self._pwstate = f'{self._zid}OFF'
@@ -218,6 +231,18 @@ class Denon232Zone(MediaPlayerEntity):
             # anything not matching above is probably the source
             else:
                 self._mediasource = line[len(self._zid):]
+
+    @property
+    def device_info(self):
+        """Return the device info."""
+        return DeviceInfo(
+            identifiers={
+                (DOMAIN, self._attr_unique_id)
+            },
+            name=self.name,
+            manufacturer="Denon",
+            via_device=(DOMAIN),
+        )
 
     @property
     def name(self):
