@@ -85,7 +85,7 @@ class Denon232ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             self.zones = self.determine_zones()
             if user_input.get(CONF_ZONE_SETUP, False) and self.zones is not []:
                 return await self.async_step_zone()
-            else
+            else:
                 return self.async_create_entry(title=self.data[CONF_NAME], data=self.data)
 
         return self.async_show_form(step_id="setup", data_schema=SETUP_SCHEMA, errors=errors)

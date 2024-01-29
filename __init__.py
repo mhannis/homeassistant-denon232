@@ -6,7 +6,7 @@ from homeassistant.const import Platform
 
 from .const import DOMAIN
 
-PLATFORMS = [platform.MEDIA_PLAYER]
+PLATFORMS = [Platform.MEDIA_PLAYER]
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up denon232 media player from ConfigEntry."""
