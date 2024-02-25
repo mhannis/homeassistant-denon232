@@ -1,21 +1,7 @@
-"""
-Denon  RS232 interface to control the receiver.
-
-Based off:
-https://github.com/home-assistant/home-assistant/blob/dev/homeassistant/components/media_player/denon.py#L228
-https://github.com/joopert/nad_receiver/blob/master/nad_receiver/__init__.py 
-
-Not all receivers have all functions.
-Functions can be found on in the xls file within this repository
-"""
-
-import codecs
-import socket
-from time import sleep
-import serial
-import telnetlib
-import threading
 import logging
+import serial
+import threading
+import time
 
 DEFAULT_TIMEOUT = 1
 DEFAULT_WRITE_TIMEOUT = 1
@@ -23,44 +9,33 @@ DEFAULT_WRITE_TIMEOUT = 1
 _LOGGER = logging.getLogger(__name__)
 
 class Denon232Receiver(object):
-    """Denon232 receiver."""
-
-
-    def __init__(self, serial_port, timeout=DEFAULT_TIMEOUT,
-                 write_timeout=DEFAULT_WRITE_TIMEOUT):
-        """Create RS232 connection."""
-        # Serial port settings are automagically ignored for non local serial ports
-        self.ser = serial.serial_for_url(serial_port, baudrate=9600, bytesize=8, parity='N', stopbits=1, timeout=timeout, write_timeout=write_timeout)
+    def __init__(self, serial_port, timeout=DEFAULT_TIMEOUT, write_timeout=DEFAULT_WRITE_TIMEOUT):
+        self.ser = serial.Serial(serial_port, baudrate=9600, bytesize=serial.EIGHTBITS, parity=serial.PARITY_NONE, stopbits=serial.STOPBITS_ONE, timeout=timeout, write_timeout=write_timeout)
         self.lock = threading.Lock()
+        _LOGGER.debug("Serial connection opened.")
+        self.initialize_connection()
+
+    def initialize_connection(self):
+        self.serial_command('PWSTANDBY', response=False)
+        #time.sleep(2)  # Give the receiver time to wake up
 
     def serial_command(self, cmd, response=False, all_lines=False):
-        _LOGGER.debug('Command: %s ', cmd)
-        if not self.ser.is_open:
-            self.ser.open()
-        
-        try:
-            self.lock.acquire()
-            
-            # Denon uses the suffix \r, so add those to the above cmd.
-            final_command = ''.join([cmd, '\r']).encode('utf-8')
-            #_LOGGER.debug('Final Command (encoded): %s ', final_command)
-            #Write data to serial port
-            #self.ser.reset_output_buffer()
-            self.ser.write(final_command)
-            #Read data from serial port
+        _LOGGER.debug('Sending command: %s', cmd)
+        with self.lock:  # Use a context manager to ensure the lock is always released
+            for char in f'{cmd}\r':  # Include the carriage return in the command
+                self.ser.write(char.encode('utf-8'))
+                self.ser.flush()
+                #time.sleep(.02)  # Delay of 20ms between each character
             if response:
-                lines = []
-                while True:
-                    line = self.ser.read_until(bytes('\r'.encode('utf-8')))
-                    if not line:
-                        break
-                    #_LOGGER.debug('Received (encoded): %s ', line)
-                    lines.append(line.decode().strip())
-                    _LOGGER.debug("Received: %s", line.decode().strip())
-                if all_lines:
-                    return lines
-                return lines[0] if lines else ''
-            else:
-                return None
-        finally:
-            self.lock.release()
+                lines = self._read_response()
+                return lines if all_lines else lines[0] if lines else None
+
+    def _read_response(self):
+        lines = []
+        while True:
+            line = self.ser.readline().decode().strip()
+            if not line:
+                break
+            lines.append(line)
+            _LOGGER.debug("Received line: %s", line)
+        return lines
