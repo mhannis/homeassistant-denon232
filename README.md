@@ -1,5 +1,5 @@
 # New Verison
-Updated code so that the serial connection is only used as necessary. h
+Updated code so that the serial connection is only used as necessary.
 
 # Home Assistant Denon RS232
 
