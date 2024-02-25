@@ -1,3 +1,6 @@
+# New Verison
+Updated code so that the serial connection is only used as necessary. h
+
 # Home Assistant Denon RS232
 
 This is a Denon AVR / Receiver Custom Component for Home Assistant that allows you to control a receiver through RS232. This custom component should support any Denon receiver with a serial port.
