@@ -1,5 +1,5 @@
 # New Verison
-Updated code so that the serial connection is only used as necessary.
+Updated code so that the serial connection is only used as necessary. Have not tested Zone Control in the middle of making updates to align with the Main Zone changes.
 
 # Home Assistant Denon RS232
 
